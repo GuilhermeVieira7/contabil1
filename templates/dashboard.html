@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Gestão+Fácil</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { background-color: #f8f9fa; }
+    .sidebar { height: 100vh; background: #fff; border-right: 1px solid #ddd; }
+    .sidebar .nav-link.active { color: #51129E; font-weight: bold; }
+    .sidebar h4 { color: #51129E; }
+    .card-summary { color: white; padding: 20px; border-radius: 10px; }
+    .chart-container { background: #fff; border-radius: 10px; padding: 20px; margin-top: 20px; }
+    #robot-chat-button {
+      position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px;
+      background-color: #51129E; color: white; border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      text-decoration: none; transition: transform 0.2s ease-in-out; z-index: 1000;
+    }
+    #robot-chat-button:hover { transform: scale(1.1); }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-2 d-none d-md-block sidebar p-3">
+        <h4 class="fw-bold mb-4">Gestão+Fácil</h4>
+        <ul class="nav flex-column">
+          <li class="nav-item"><a class="nav-link active" href="/dashboard"><i class="fas fa-home me-2"></i>Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="/assistente"><i class="fas fa-robot me-2"></i>Assistente</a></li>
+          <li class="nav-item"><a class="nav-link" href="/administracao"><i class="fas fa-cogs me-2"></i>Administração</a></li>
+        </ul>
+      </nav>
+
+      <main class="col-md-10 ms-sm-auto px-md-4">
+        <div class="d-flex justify-content-between align-items-center py-3">
+          <h2>Dashboard</h2>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-3"><div class="card-summary" style="background-color: #28a745;"><h6>Vendas de Hoje</h6><h4 id="vendasHoje">R$ 0,00</h4></div></div>
+          <div class="col-md-3"><div class="card-summary" style="background-color: #dc3545;"><h6>A Pagar Hoje</h6><h4 id="aPagarHoje">R$ 0,00</h4></div></div>
+          <div class="col-md-3"><div class="card-summary" style="background-color: #51129E;"><h6>A Receber Hoje</h6><h4 id="aReceberHoje">R$ 0,00</h4></div></div>
+          <div class="col-md-3"><div class="card-summary" style="background-color: #17a2b8;"><h6>Faturamento do Mês</h6><h4 id="faturamentoMes">R$ 0,00</h4></div></div>
+        </div>
+        <div class="row">
+          <div class="col-lg-8 chart-container"><h6>Receita x Despesa (Exemplo)</h6><canvas id="lineChart"></canvas></div>
+          <div class="col-lg-4 chart-container"><h6>Despesas por Categoria (Exemplo)</h6><canvas id="pieChart"></canvas></div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <a href="/assistente" id="robot-chat-button" title="Assistente Virtual"><i class="fas fa-robot"></i></a>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // O JavaScript permanece o mesmo, pois já era funcional
+    function formatarReal(valor) { return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor); }
+    function carregarResumoDashboard() {
+        fetch('/api/dashboard_summary')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('vendasHoje').textContent = formatarReal(data.vendasHoje);
+                document.getElementById('aPagarHoje').textContent = formatarReal(data.aPagarHoje);
+                document.getElementById('aReceberHoje').textContent = formatarReal(data.aReceberHoje);
+                document.getElementById('faturamentoMes').textContent = formatarReal(data.faturamentoMes);
+            }).catch(err => console.error("Falha ao carregar resumo:", err));
+    }
+    document.addEventListener('DOMContentLoaded', carregarResumoDashboard);
+  </script>
+</body>
+</html>

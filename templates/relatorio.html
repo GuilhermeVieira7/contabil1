@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Financeiro Empresarial</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 50%, #f9fafb 100%);
+        }
+        .purple-gradient {
+            background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 50%, #C4B5FD 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(139, 92, 246, 0.1), 0 2px 4px -1px rgba(139, 92, 246, 0.06);
+        }
+        .btn-purple {
+            background: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-purple:hover {
+            background: linear-gradient(135deg, #7C3AED 0%, #8B5CF6 100%);
+            transform: translateY(-1px);
+        }
+        .chart-container {
+            height: 300px !important;
+            width: 100% !important;
+        }
+        .indicator-positive { color: #10B981; }
+        .indicator-negative { color: #EF4444; }
+        .indicator-neutral { color: #6B7280; }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen p-4">
+    <div class="flex justify-between items-center mb-6">
+        <a href="/administracao" class="btn-purple text-white px-4 py-2 rounded-lg font-medium flex items-center">
+            <i class="fas fa-arrow-left mr-2"></i> Voltar
+        </a>
+        <a href="/logout" class="btn-purple text-white px-4 py-2 rounded-lg font-medium flex items-center">
+            <i class="fas fa-sign-out-alt mr-2"></i> Sair
+        </a>
+    </div>
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Dashboard Financeiro Empresarial</h1>
+            <p class="text-gray-600">Análise Completa - Período: Janeiro a Dezembro 2024</p>
+            <div class="flex justify-center space-x-4 mt-6">
+                <button onclick="updatePeriod('trimestre')" class="btn-purple text-white px-6 py-2 rounded-lg font-medium">
+                    <i class="fas fa-calendar-alt mr-2"></i>Trimestral
+                </button>
+                <button onclick="updatePeriod('semestre')" class="btn-purple text-white px-6 py-2 rounded-lg font-medium">
+                    <i class="fas fa-calendar-check mr-2"></i>Semestral
+                </button>
+                <button onclick="updatePeriod('anual')" class="btn-purple text-white px-6 py-2 rounded-lg font-medium">
+                    <i class="fas fa-calendar-year mr-2"></i>Anual
+                </button>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Receita Total</p>
+                        <p class="text-2xl font-bold text-gray-900" id="receita-total">R$ 2.450.000</p>
+                        <p class="text-sm indicator-positive"><i class="fas fa-arrow-up mr-1"></i>12.5% vs período anterior</p>
+                    </div>
+                    <div class="p-3 purple-gradient rounded-full">
+                        <i class="fas fa-chart-line text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Lucro Líquido</p>
+                        <p class="text-2xl font-bold text-gray-900" id="lucro-liquido">R$ 367.500</p>
+                        <p class="text-sm indicator-positive"><i class="fas fa-arrow-up mr-1"></i>8.2% vs período anterior</p>
+                    </div>
+                    <div class="p-3 purple-gradient rounded-full">
+                        <i class="fas fa-coins text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">Margem Líquida</p>
+                        <p class="text-2xl font-bold text-gray-900" id="margem-liquida">15.0%</p>
+                        <p class="text-sm indicator-positive"><i class="fas fa-arrow-up mr-1"></i>1.5pp vs período anterior</p>
+                    </div>
+                    <div class="p-3 purple-gradient rounded-full">
+                        <i class="fas fa-percentage text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-gray-600">ROE</p>
+                        <p class="text-2xl font-bold text-gray-900" id="roe">18.5%</p>
+                        <p class="text-sm indicator-positive"><i class="fas fa-arrow-up mr-1"></i>2.3pp vs período anterior</p>
+                    </div>
+                    <div class="p-3 purple-gradient rounded-full">
+                        <i class="fas fa-chart-pie text-white text-xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DRE Section -->
+        <div class="bg-white rounded-xl p-8 card-shadow mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-file-invoice-dollar text-purple-600 mr-3"></i>
+                    Demonstrativo de Resultado do Exercício (DRE)
+                </h2>
+                <button onclick="exportDRE()" class="btn-purple text-white px-4 py-2 rounded-lg font-medium">
+                    <i class="fas fa-download mr-2"></i>Exportar DRE
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b-2 border-purple-200">
+                            <th class="text-left py-3 px-4 font-bold text-gray-700">Conta</th>
+                            <th class="text-right py-3 px-4 font-bold text-gray-700">2024 (R$)</th>
+                            <th class="text-right py-3 px-4 font-bold text-gray-700">2023 (R$)</th>
+                            <th class="text-right py-3 px-4 font-bold text-gray-700">Var. %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dre-table">
+                        <tr class="border-b border-gray-200 bg-purple-50">
+                            <td class="py-3 px-4 font-semibold">Receita Bruta</td>
+                            <td class="text-right py-3 px-4">2.450.000</td>
+                            <td class="text-right py-3 px-4">2.178.000</td>
+                            <td class="text-right py-3 px-4 indicator-positive">12.5%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4 pl-8">(-) Deduções e Abatimentos</td>
+                            <td class="text-right py-3 px-4">(245.000)</td>
+                            <td class="text-right py-3 px-4">(217.800)</td>
+                            <td class="text-right py-3 px-4 indicator-negative">12.5%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-purple-50">
+                            <td class="py-3 px-4 font-semibold">Receita Líquida</td>
+                            <td class="text-right py-3 px-4 font-semibold">2.205.000</td>
+                            <td class="text-right py-3 px-4 font-semibold">1.960.200</td>
+                            <td class="text-right py-3 px-4 font-semibold indicator-positive">12.5%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4">(-) CMV/CPV</td>
+                            <td class="text-right py-3 px-4">(1.322.000)</td>
+                            <td class="text-right py-3 px-4">(1.176.120)</td>
+                            <td class="text-right py-3 px-4 indicator-negative">12.4%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-purple-50">
+                            <td class="py-3 px-4 font-semibold">Lucro Bruto</td>
+                            <td class="text-right py-3 px-4 font-semibold">883.000</td>
+                            <td class="text-right py-3 px-4 font-semibold">784.080</td>
+                            <td class="text-right py-3 px-4 font-semibold indicator-positive">12.6%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4">(-) Despesas Operacionais</td>
+                            <td class="text-right py-3 px-4">(441.500)</td>
+                            <td class="text-right py-3 px-4">(392.040)</td>
+                            <td class="text-right py-3 px-4 indicator-negative">12.6%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4 pl-8">Vendas</td>
+                            <td class="text-right py-3 px-4">(220.500)</td>
+                            <td class="text-right py-3 px-4">(196.020)</td>
+                            <td class="text-right py-3 px-4 indicator-negative">12.5%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4 pl-8">Administrativas</td>
+                            <td class="text-right py-3 px-4">(176.400)</td>
+                            <td class="text-right py-3 px-4">(156.816)</td>
+                            <td class="text-right py-3 px-4 indicator-negative">12.5%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4 pl-8">Outras</td>
+                            <td class="text-right py-3 px-4">(44.600)</td>
+                            <td class="text-right py-3 px-4">(39.204)</td>
+                            <td class="text-right py-3 px-4 indicator-negative">13.8%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-purple-50">
+                            <td class="py-3 px-4 font-semibold">EBITDA</td>
+                            <td class="text-right py-3 px-4 font-semibold">441.500</td>
+                            <td class="text-right py-3 px-4 font-semibold">392.040</td>
+                            <td class="text-right py-3 px-4 font-semibold indicator-positive">12.6%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4">(-) Depreciação</td>
+                            <td class="text-right py-3 px-4">(49.000)</td>
+                            <td class="text-right py-3 px-4">(44.100)</td>
+                            <td class="text-right py-3 px-4 indicator-negative">11.1%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-purple-50">
+                            <td class="py-3 px-4 font-semibold">Resultado Operacional</td>
+                            <td class="text-right py-3 px-4 font-semibold">392.500</td>
+                            <td class="text-right py-3 px-4 font-semibold">347.940</td>
+                            <td class="text-right py-3 px-4 font-semibold indicator-positive">12.8%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4">(-) Resultado Financeiro</td>
+                            <td class="text-right py-3 px-4">(25.000)</td>
+                            <td class="text-right py-3 px-4">(30.000)</td>
+                            <td class="text-right py-3 px-4 indicator-positive">-16.7%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200 bg-purple-100">
+                            <td class="py-3 px-4 font-bold">Lucro Antes do IR</td>
+                            <td class="text-right py-3 px-4 font-bold">367.500</td>
+                            <td class="text-right py-3 px-4 font-bold">317.940</td>
+                            <td class="text-right py-3 px-4 font-bold indicator-positive">15.6%</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-3 px-4">(-) IR/CSLL</td>
+                            <td class="text-right py-3 px-4">(91.875)</td>
+                            <td class="text-right py-3 px-4">(79.485)</td>
+                            <td class="text-right py-3 px-4 indicator-negative">15.6%</td>
+                        </tr>
+                        <tr class="border-b-2 border-purple-400 bg-purple-200">
+                            <td class="py-4 px-4 font-bold text-lg">Lucro Líquido</td>
+                            <td class="text-right py-4 px-4 font-bold text-lg">275.625</td>
+                            <td class="text-right py-4 px-4 font-bold text-lg">238.455</td>
+                            <td class="text-right py-4 px-4 font-bold text-lg indicator-positive">15.6%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Fluxo de Caixa Section -->
+        <div class="bg-white rounded-xl p-8 card-shadow mb-8">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">
+                    <i class="fas fa-water text-purple-600 mr-3"></i>
+                    Fluxo de Caixa Projetado
+                </h2>
+                <div class="flex space-x-2">
+                    <button onclick="updateFluxoCaixa('operacional')" class="btn-purple text-white px-4 py-2 rounded-lg font-medium">
+                        <i class="fas fa-cogs mr-2"></i>Operacional
+                    </button>
+                    <button onclick="updateFluxoCaixa('investimento')" class="btn-purple text-white px-4 py-2 rounded-lg font-medium">
+                        <i class="fas fa-chart-line mr-2"></i>Investimento
+                    </button>
+                    <button onclick="updateFluxoCaixa('financiamento')" class="btn-purple text-white px-4 py-2 rounded-lg font-medium">
+                        <i class="fas fa-university mr-2"></i>Financiamento
+                    </button>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="fluxoCaixaChart"></canvas>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-2">Atividades Operacionais</h4>
+                    <p class="text-2xl font-bold text-green-600">+R$ 425.000</p>
+                    <p class="text-sm text-gray-600">Fluxo positivo mensal médio</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-2">Atividades de Investimento</h4>
+                    <p class="text-2xl font-bold text-red-600">-R$ 85.000</p>
+                    <p class="text-sm text-gray-600">Investimentos em ativos</p>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-gray-800 mb-2">Atividades de Financiamento</h4>
+                    <p class="text-2xl font-bold text-blue-600">-R$ 45.000</p>
+                    <p class="text-sm text-gray-600">Pagamento de financiamentos</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row with Endividamento and Indicadores -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Análise de Endividamento -->
+            <div class="bg-white rounded-xl p-8 card-shadow">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-balance-scale text-purple-600 mr-3"></i>
+                    Análise de Endividamento
+                </h2>
+                
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+                        <div>
+                            <p class="text-sm font-medium text-gray-600">Endividamento Total</p>
+                            <p class="text-2xl font-bold text-gray-900">32.5%</p>
+                        </div>
+                        <div class="w-24 h-24">
+                            <canvas id="endividamentoChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <p class="text-sm text-gray-600">Curto Prazo</p>
+                            <p class="text-xl font-bold text-orange-600">18.2%</p>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <p class="text-sm text-gray-600">Longo Prazo</p>
+                            <p class="text-xl font-bold text-blue-600">14.3%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Composição do Endividamento</span>
+                            <span class="text-sm font-medium">56% CP / 44% LP</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Prazo Médio Ponderado</span>
+                            <span class="text-sm font-medium indicator-positive">24 meses</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-gray-600">Custo Médio da Dívida</span>
+                            <span class="text-sm font-medium">8.5% a.a.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicadores Financeiros -->
+            <div class="bg-white rounded-xl p-8 card-shadow">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-chart-bar text-purple-600 mr-3"></i>
+                    Indicadores Financeiros
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- Liquidez -->
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">Liquidez</h4>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <p class="text-xs text-gray-600">Corrente</p>
+                                <p class="text-lg font-bold indicator-positive">2.45</p>
+                            </div>
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <p class="text-xs text-gray-600">Seca</p>
+                                <p class="text-lg font-bold indicator-positive">1.82</p>
+                            </div>
+                            <div class="text-center p-3 bg-green-50 rounded-lg">
+                                <p class="text-xs text-gray-600">Geral</p>
+                                <p class="text-lg font-bold indicator-positive">1.95</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Lucratividade -->
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">Lucratividade</h4>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                <p class="text-xs text-gray-600">Bruta</p>
+                                <p class="text-lg font-bold text-blue-600">40.0%</p>
+                            </div>
+                            <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                <p class="text-xs text-gray-600">Operacional</p>
+                                <p class="text-lg font-bold text-blue-600">17.8%</p>
+                            </div>
+                            <div class="text-center p-3 bg-blue-50 rounded-lg">
+                                <p class="text-xs text-gray-600">Líquida</p>
+                                <p class="text-lg font-bold text-blue-600">12.5%</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rentabilidade -->
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-3">Rentabilidade</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="text-center p-3 bg-purple-50 rounded-lg">
+                                <p class="text-xs text-gray-600">ROE</p>
+                                <p class="text-lg font-bold text-purple-600">18.5%</p>
+                            </div>
+                            <div class="text-center p-3 bg-purple-50 rounded-lg">
+                                <p class="text-xs text-gray-600">ROA</p>
+                                <p class="text-lg font-bold text-purple-600">12.8%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Análise Temporal -->
+        <div class="bg-white rounded-xl p-8 card-shadow mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                <i class="fas fa-chart-area text-purple-600 mr-3"></i>
+                Evolução dos Indicadores
+            </h2>
+            
+            <div class="chart-container">
+                <canvas id="evolucaoChart"></canvas>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+                <div class="text-center p-4 bg-gradient-to-r from-purple-100 to-purple-50 rounded-lg">
+                    <i class="fas fa-trending-up text-2xl text-purple-600 mb-2"></i>
+                    <p class="text-sm text-gray-600">Crescimento Receita</p>
+                    <p class="text-xl font-bold text-purple-600">+12.5%</p>
+                </div>
+                <div class="text-center p-4 bg-gradient-to-r from-green-100 to-green-50 rounded-lg">
+                    <i class="fas fa-coins text-2xl text-green-600 mb-2"></i>
+                    <p class="text-sm text-gray-600">Melhoria Margem</p>
+                    <p class="text-xl font-bold text-green-600">+1.5pp</p>
+                </div>
+                <div class="text-center p-4 bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg">
+                    <i class="fas fa-shield-alt text-2xl text-blue-600 mb-2"></i>
+                    <p class="text-sm text-gray-600">Solidez Financeira</p>
+                    <p class="text-xl font-bold text-blue-600">Forte</p>
+                </div>
+                <div class="text-center p-4 bg-gradient-to-r from-orange-100 to-orange-50 rounded-lg">
+                    <i class="fas fa-star text-2xl text-orange-600 mb-2"></i>
+                    <p class="text-sm text-gray-600">Rating Interno</p>
+                    <p class="text-xl font-bold text-orange-600">A+</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center text-gray-600 mt-8 pb-4">
+            <p class="text-sm">Dashboard Financeiro | Atualizado em tempo real | Dados auditados</p>
+        </div>
+    </div>
+
+    <script>
+        // Dados globais
+        let currentPeriod = 'anual';
+        let charts = {};
+        
+        // Configuração padrão dos gráficos
+        Chart.defaults.font.family = 'Inter, sans-serif';
+        Chart.defaults.color = '#374151';
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+        
+        // Função para inicializar todos os gráficos
+        function initializeCharts() {
+            createFluxoCaixaChart();
+            createEndividamentoChart();
+            createEvolucaoChart();
+        }
+        
+        // Gráfico de Fluxo de Caixa
+        function createFluxoCaixaChart() {
+            const ctx = document.getElementById('fluxoCaixaChart').getContext('2d');
+            
+            if (charts.fluxoCaixa) {
+                charts.fluxoCaixa.destroy();
+            }
+            
+            charts.fluxoCaixa = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+                    datasets: [{
+                        label: 'Fluxo Operacional',
+                        data: [380, 420, 450, 395, 460, 425, 440, 475, 430, 450, 465, 480],
+                        borderColor: '#8B5CF6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Fluxo de Investimento',
+                        data: [-80, -90, -85, -75, -95, -85, -80, -90, -85, -80, -85, -90],
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Fluxo de Financiamento',
+                        data: [-45, -45, -45, -45, -45, -45, -45, -45, -45, -45, -45, -45],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(139, 92, 246, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return 'R$ ' + value.toLocaleString('pt-BR');
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(139, 92, 246, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Gráfico de Endividamento
+        function createEndividamentoChart() {
+            const ctx = document.getElementById('endividamentoChart').getContext('2d');
+            
+            if (charts.endividamento) {
+                charts.endividamento.destroy();
+            }
+            
+            charts.endividamento = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Patrimônio Líquido', 'Dívidas'],
+                    datasets: [{
+                        data: [67.5, 32.5],
+                        backgroundColor: ['#8B5CF6', '#E5E7EB'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Gráfico de Evolução
+        function createEvolucaoChart() {
+            const ctx = document.getElementById('evolucaoChart').getContext('2d');
+            
+            if (charts.evolucao) {
+                charts.evolucao.destroy();
+            }
+            
+            charts.evolucao = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Q1 2023', 'Q2 2023', 'Q3 2023', 'Q4 2023', 'Q1 2024', 'Q2 2024', 'Q3 2024', 'Q4 2024'],
+                    datasets: [{
+                        label: 'Receita (R$ mil)',
+                        data: [480, 510, 525, 563, 590, 612, 628, 620],
+                        backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Margem Líquida (%)',
+                        data: [11.2, 12.1, 12.8, 13.5, 13.8, 14.2, 14.8, 15.0],
+                        type: 'line',
+                        borderColor: '#10B981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: false,
+                        yAxisID: 'y1',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Receita (R$ mil)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Margem (%)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Função para atualizar período
+        function updatePeriod(period) {
+            currentPeriod = period;
+            
+            // Animação de loading
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes('updatePeriod')) {
+                    btn.style.opacity = '0.6';
+                }
+            });
+            
+            setTimeout(() => {
+                // Simular atualização dos dados
+                if (period === 'trimestre') {
+                    document.getElementById('receita-total').textContent = 'R$ 612.500';
+                    document.getElementById('lucro-liquido').textContent = 'R$ 91.875';
+                } else if (period === 'semestre') {
+                    document.getElementById('receita-total').textContent = 'R$ 1.225.000';
+                    document.getElementById('lucro-liquido').textContent = 'R$ 183.750';
+                } else {
+                    document.getElementById('receita-total').textContent = 'R$ 2.450.000';
+                    document.getElementById('lucro-liquido').textContent = 'R$ 367.500';
+                }
+                
+                // Restaurar opacidade
+                buttons.forEach(btn => {
+                    btn.style.opacity = '1';
+                });
+                
+                // Mostrar notificação
+                showNotification('Dados atualizados para período ' + period);
+            }, 500);
+        }
+        
+        // Função para atualizar fluxo de caixa
+        function updateFluxoCaixa(tipo) {
+            // Destacar dados específicos baseado no tipo selecionado
+            const datasets = charts.fluxoCaixa.data.datasets;
+            
+            datasets.forEach((dataset, index) => {
+                if (tipo === 'operacional' && index === 0) {
+                    dataset.borderWidth = 4;
+                    dataset.backgroundColor = 'rgba(139, 92, 246, 0.3)';
+                } else if (tipo === 'investimento' && index === 1) {
+                    dataset.borderWidth = 4;
+                    dataset.backgroundColor = 'rgba(239, 68, 68, 0.3)';
+                } else if (tipo === 'financiamento' && index === 2) {
+                    dataset.borderWidth = 4;
+                    dataset.backgroundColor = 'rgba(59, 130, 246, 0.3)';
+                } else {
+                    dataset.borderWidth = 2;
+                    dataset.backgroundColor = dataset.backgroundColor.replace('0.3', '0.1');
+                }
+            });
+            
+            charts.fluxoCaixa.update('active');
+            showNotification('Destaque aplicado: ' + tipo);
+        }
+        
+        // Função para exportar DRE
+        function exportDRE() {
+            showNotification('Funcionalidade de export em desenvolvimento');
+        }
+        
+        // Função para mostrar notificações
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-300';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Prevenir criação infinita de gráficos
+        window.addEventListener('beforeunload', function() {
+            Object.values(charts).forEach(chart => {
+                if (chart && typeof chart.destroy === 'function') {
+                    chart.destroy();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

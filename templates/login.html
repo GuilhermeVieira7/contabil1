@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Gestão+Fácil</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #80c2f0, #e6f3fa);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      width: 600px;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .form-container {
+      padding: 30px;
+      flex: 1;
+    }
+
+    .form-container h2 {
+      color: #007bff;
+      margin-bottom: 20px;
+    }
+
+    .form-container label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .form-container input[type="text"],
+    .form-container input[type="password"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .form-container .btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .form-container .btn:hover {
+      background-color: #0056b3;
+    }
+
+    .form-container a {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 14px;
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .form-container a:hover {
+      text-decoration: underline;
+    }
+
+    .logo-container {
+      background-color: #f2f9ff;
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .logo-container img {
+      width: 100px;
+      height: 100px;
+      margin-bottom: 10px;
+      border-radius: 15px;
+    }
+
+    .logo-container h1 {
+      font-size: 28px;
+      color: #007bff;
+      text-align: center;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 15px;
+      width: 100%;
+      text-align: center;
+    }
+
+    footer a {
+      margin: 0 10px;
+      font-size: 13px;
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <div class="form-container">
+      <form method="POST" action="{{ url_for('login') }}">
+        <h2>Faça o login</h2>
+        {% if erro %}
+          <div style="color:red;">{{ erro }}</div>
+        {% endif %}
+        <label for="usuario">Usuário ou Email</label>
+        <input type="text" id="usuario" name="email" required />
+
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" name="senha" required />
+
+        <button class="btn" type="submit">Acessar</button>
+        <a href="/esqueci_senha">Esqueceu sua senha?</a>
+      </form>
+    </div>
+
+    <div class="logo-container">
+        <img src="{{ url_for('static', filename='img/gestaofacil.png') }}" alt="Logo">
+      <h1>Gestão+Fácil</h1>
+    </div>
+  </div>
+
+  <footer>
+    <a href="#">Currículo</a>
+    <a href="#">Cotação On-line</a>
+    <a href="#">Executor Web</a>
+    <a href="#">Processo Seletivo</a>
+    <a href="#">Pesquisar Acervo</a>
+    <a href="#">Fórum</a>
+    <a href="#">Certificador de Relatórios</a>
+  </footer>
+
+</body>
+</html>
