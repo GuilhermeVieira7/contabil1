@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão de Custos e Formação de Preço</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .chart-container {
+            height: 400px;
+            margin: 20px 0;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-button.active {
+            background-color: #3B82F6;
+            color: white;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Sidebar Cascata -->
+    <div class="fixed top-0 left-0 h-full w-56 bg-white border-r shadow-md z-50 flex flex-col pt-8">
+        <h3 class="text-center text-blue-700 font-bold text-xl mb-8">Gestão+Fácil</h3>
+        <nav class="flex-1">
+            <a href="/dashboard" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition rounded-lg mb-2">
+                <i class="fas fa-home mr-2"></i> Dashboard
+            </a>
+            <a href="/assistente" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition rounded-lg mb-2">
+                <i class="fas fa-robot mr-2"></i> Assistente
+            </a>
+            <a href="/administracao" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition rounded-lg mb-2">
+                <i class="fas fa-cogs mr-2"></i> Administração
+            </a>
+            <a href="/relatorios" class="flex items-center px-6 py-3 text-gray-700 hover:bg-blue-100 hover:text-blue-700 transition rounded-lg mb-2">
+                <i class="fas fa-file-alt mr-2"></i> Relatório
+            </a>
+            <a href="/centrocusto" class="flex items-center px-6 py-3 text-blue-700 bg-blue-50 font-semibold transition rounded-lg mb-2">
+                <i class="fas fa-calculator mr-2"></i> Centro de Custo
+            </a>
+        </nav>
+    </div>
+    <!-- Conteúdo principal com margem à esquerda -->
+    <div class="container mx-auto px-4 py-6" style="margin-left: 15rem;">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-calculator text-blue-600"></i>
+                Sistema de Gestão de Custos e Formação de Preço
+            </h1>
+            <p class="text-gray-600">Sistema completo para cálculo de custos, precificação e análise de cenários</p>
+        </div>
+        
+
+        <!-- Navigation Tabs -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="flex flex-wrap border-b">
+                <button class="tab-button px-6 py-3 font-medium text-gray-700 hover:text-blue-600 focus:outline-none border-b-2 border-transparent hover:border-blue-600 active" onclick="showTab('produtos')">
+                    <i class="fas fa-box mr-2"></i>Produtos
+                </button>
+                <button class="tab-button px-6 py-3 font-medium text-gray-700 hover:text-blue-600 focus:outline-none border-b-2 border-transparent hover:border-blue-600" onclick="showTab('custos')">
+                    <i class="fas fa-money-bill-wave mr-2"></i>Custos
+                </button>
+                <button class="tab-button px-6 py-3 font-medium text-gray-700 hover:text-blue-600 focus:outline-none border-b-2 border-transparent hover:border-blue-600" onclick="showTab('precificacao')">
+                    <i class="fas fa-tags mr-2"></i>Precificação
+                </button>
+                <button class="tab-button px-6 py-3 font-medium text-gray-700 hover:text-blue-600 focus:outline-none border-b-2 border-transparent hover:border-blue-600" onclick="showTab('simulacao')">
+                    <i class="fas fa-chart-line mr-2"></i>Simulação
+                </button>
+                <button class="tab-button px-6 py-3 font-medium text-gray-700 hover:text-blue-600 focus:outline-none border-b-2 border-transparent hover:border-blue-600" onclick="showTab('dashboard')">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Dashboard
+                </button>
+                <button class="tab-button px-6 py-3 font-medium text-gray-700 hover:text-blue-600 focus:outline-none border-b-2 border-transparent hover:border-blue-600" onclick="showTab('equilibrio')">
+                    <i class="fas fa-balance-scale mr-2"></i>Ponto de Equilíbrio
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Contents -->
+        
+        <!-- Produtos Tab -->
+        <div id="produtos" class="tab-content active">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Cadastro de Produto -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-plus text-green-600"></i>
+                        Cadastrar Produto
+                    </h2>
+                    <form id="produtoForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nome do Produto</label>
+                            <input type="text" id="nomeProduto" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                            <input type="text" id="categoriaProduto" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Unidade de Medida</label>
+                            <select id="unidadeMedida" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="un">Unidade</option>
+                                <option value="kg">Quilograma</option>
+                                <option value="g">Grama</option>
+                                <option value="l">Litro</option>
+                                <option value="ml">Mililitro</option>
+                                <option value="m">Metro</option>
+                                <option value="cm">Centímetro</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
+                            <i class="fas fa-save mr-2"></i>Salvar Produto
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Lista de Produtos -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-list text-blue-600"></i>
+                        Produtos Cadastrados
+                    </h2>
+                    <div id="listaProdutos" class="space-y-2 max-h-96 overflow-y-auto">
+                        <!-- Produtos serão listados aqui -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Custos Tab -->
+        <div id="custos" class="tab-content">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <!-- Seleção de Produto e Custos Diretos -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h2 class="text-xl font-bold text-gray-800 mb-4">
+                            <i class="fas fa-cog text-blue-600"></i>
+                            Configuração de Custos
+                        </h2>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Selecionar Produto</label>
+                            <select id="produtoSelecionado" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="carregarCustos()">
+                                <option value="">Selecione um produto</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Quantidade Produzida</label>
+                            <input type="number" id="quantidadeProduzida" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="1" min="1" onchange="calcularCustos()">
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">
+                            <i class="fas fa-tools text-green-600"></i>
+                            Custos Diretos
+                        </h3>
+                        <div id="custosDirectos" class="space-y-3">
+                            <div class="flex gap-2">
+                                <input type="text" placeholder="Descrição" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-descricao">
+                                <input type="number" placeholder="Valor" class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-valor" onchange="calcularCustos()">
+                                <button type="button" onclick="adicionarCustoDirecto()" class="bg-green-600 text-white px-3 py-2 rounded-md hover:bg-green-700">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Custos Indiretos e Resumo -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">
+                            <i class="fas fa-building text-orange-600"></i>
+                            Custos Indiretos
+                        </h3>
+                        <div id="custosIndiretos" class="space-y-3">
+                            <div class="flex gap-2">
+                                <input type="text" placeholder="Descrição" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-descricao">
+                                <input type="number" placeholder="Valor" class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-valor" onchange="calcularCustos()">
+                                <button type="button" onclick="adicionarCustoIndireto()" class="bg-orange-600 text-white px-3 py-2 rounded-md hover:bg-orange-700">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-md p-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-4">
+                            <i class="fas fa-calculator text-purple-600"></i>
+                            Resumo de Custos
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="text-gray-700">Custos Diretos:</span>
+                                <span class="font-semibold text-green-600" id="totalCustosDirectos">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="text-gray-700">Custos Indiretos:</span>
+                                <span class="font-semibold text-orange-600" id="totalCustosIndiretos">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 border-b">
+                                <span class="text-gray-700">Custo Total:</span>
+                                <span class="font-semibold text-blue-600" id="custoTotal">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2 bg-gray-50 rounded-md px-3">
+                                <span class="text-gray-700 font-medium">Custo Unitário:</span>
+                                <span class="font-bold text-lg text-purple-600" id="custoUnitario">R$ 0,00</span>
+                            </div>
+                        </div>
+                        <button onclick="salvarCustos()" class="w-full mt-4 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200">
+                            <i class="fas fa-save mr-2"></i>Salvar Custos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Precificação Tab -->
+        <div id="precificacao" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-percentage text-green-600"></i>
+                        Configuração de Preços
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Produto</label>
+                            <select id="produtoPrecificacao" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="carregarDadosPrecificacao()">
+                                <option value="">Selecione um produto</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Margem de Lucro Desejada (%)</label>
+                            <input type="number" id="margemLucro" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="30" min="0" max="1000" onchange="calcularPreco()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Impostos (%)</label>
+                            <input type="number" id="impostos" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="15" min="0" max="100" onchange="calcularPreco()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Comissão de Vendas (%)</label>
+                            <input type="number" id="comissaoVendas" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="5" min="0" max="100" onchange="calcularPreco()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Desconto Máximo Permitido (%)</label>
+                            <input type="number" id="descontoMaximo" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="10" min="0" max="100" onchange="calcularPreco()">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-chart-bar text-blue-600"></i>
+                        Análise de Preços
+                    </h2>
+                    <div class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-md">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700">Custo Unitário:</span>
+                                <span class="font-semibold" id="custoUnitarioPrecificacao">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700">Margem de Lucro:</span>
+                                <span class="font-semibold text-green-600" id="valorMargemLucro">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700">Impostos:</span>
+                                <span class="font-semibold text-red-600" id="valorImpostos">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700">Comissão:</span>
+                                <span class="font-semibold text-orange-600" id="valorComissao">R$ 0,00</span>
+                            </div>
+                            <hr class="my-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700 font-medium">Preço Sugerido:</span>
+                                <span class="font-bold text-lg text-blue-600" id="precoSugerido">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700">Preço Mínimo:</span>
+                                <span class="font-semibold text-yellow-600" id="precoMinimo">R$ 0,00</span>
+                            </div>
+                        </div>
+                        <button onclick="salvarPrecificacao()" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200">
+                            <i class="fas fa-save mr-2"></i>Salvar Precificação
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulação Tab -->
+        <div id="simulacao" class="tab-content">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">
+                    <i class="fas fa-flask text-purple-600"></i>
+                    Simulador de Cenários
+                </h2>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Produto</label>
+                        <select id="produtoSimulacao" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="carregarDadosSimulacao()">
+                            <option value="">Selecione um produto</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Preço Atual</label>
+                        <input type="number" id="precoAtualSimulacao" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Vendas Mensais Atuais</label>
+                        <input type="number" id="vendasAtuais" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="100" min="1">
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Cenários de Simulação</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Variação de Preço (%)</label>
+                            <input type="number" id="variacaoPreco" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="10" onchange="simularCenarios()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Elasticidade da Demanda</label>
+                            <select id="elasticidadeDemanda" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="simularCenarios()">
+                                <option value="0.5">Baixa (0.5)</option>
+                                <option value="1.0" selected>Média (1.0)</option>
+                                <option value="1.5">Alta (1.5)</option>
+                                <option value="2.0">Muito Alta (2.0)</option>
+                            </select>
+                        </div>
+                        <button onclick="simularCenarios()" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200">
+                            <i class="fas fa-play mr-2"></i>Simular Cenários
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Resultados da Simulação</h3>
+                    <div id="resultadosSimulacao" class="space-y-3">
+                        <p class="text-gray-500 text-center py-8">Execute uma simulação para ver os resultados</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Gráfico de Cenários</h3>
+                <div class="chart-container">
+                    <canvas id="cenarioChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                            <i class="fas fa-box text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Produtos Cadastrados</p>
+                            <p class="text-2xl font-bold text-gray-800" id="totalProdutos">0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                            <i class="fas fa-dollar-sign text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Margem Média</p>
+                            <p class="text-2xl font-bold text-gray-800" id="margemMedia">0%</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Preço Médio</p>
+                            <p class="text-2xl font-bold text-gray-800" id="precoMedio">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-orange-100 text-orange-600 mr-4">
+                            <i class="fas fa-cogs text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-gray-600 text-sm">Custo Médio</p>
+                            <p class="text-2xl font-bold text-gray-800" id="custoMedio">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Distribuição de Custos</h3>
+                    <div class="chart-container">
+                        <canvas id="custosChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4">Margem de Lucro por Produto</h3>
+                    <div class="chart-container">
+                        <canvas id="margensChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Comparativo de Preços</h3>
+                <div class="chart-container">
+                    <canvas id="precosChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ponto de Equilíbrio Tab -->
+        <div id="equilibrio" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-balance-scale text-blue-600"></i>
+                        Cálculo do Ponto de Equilíbrio
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Produto</label>
+                            <select id="produtoEquilibrio" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="carregarDadosEquilibrio()">
+                                <option value="">Selecione um produto</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Custos Fixos Mensais (R$)</label>
+                            <input type="number" id="custosFixos" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" value="5000" min="0" onchange="calcularPontoEquilibrio()">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Preço de Venda Unitário (R$)</label>
+                            <input type="number" id="precoVendaEquilibrio" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Custo Variável Unitário (R$)</label>
+                            <input type="number" id="custoVariavelEquilibrio" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" readonly>
+                        </div>
+                        <button onclick="calcularPontoEquilibrio()" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
+                            <i class="fas fa-calculator mr-2"></i>Calcular Ponto de Equilíbrio
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">
+                        <i class="fas fa-chart-pie text-green-600"></i>
+                        Resultados
+                    </h2>
+                    <div id="resultadosEquilibrio" class="space-y-4">
+                        <div class="bg-gray-50 p-4 rounded-md">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700">Margem de Contribuição:</span>
+                                <span class="font-semibold text-blue-600" id="margemContribuicao">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700">% Margem de Contribuição:</span>
+                                <span class="font-semibold text-green-600" id="percentualMargem">0%</span>
+                            </div>
+                            <hr class="my-3">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-gray-700 font-medium">Ponto de Equilíbrio (unidades):</span>
+                                <span class="font-bold text-lg text-purple-600" id="pontoEquilibrioUnidades">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700 font-medium">Ponto de Equilíbrio (R$):</span>
+                                <span class="font-bold text-lg text-orange-600" id="pontoEquilibrioReais">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Gráfico do Ponto de Equilíbrio</h3>
+                <div class="chart-container">
+                    <canvas id="equilibrioChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variáveis globais
+        let produtos = JSON.parse(localStorage.getItem('produtos')) || [];
+        let custos = JSON.parse(localStorage.getItem('custos')) || {};
+        let precos = JSON.parse(localStorage.getItem('precos')) || {};
+
+        // Função para mostrar tabs
+        function showTab(tabName) {
+            // Esconder todas as tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remover classe active de todos os botões
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Mostrar tab selecionada
+            document.getElementById(tabName).classList.add('active');
+            
+            // Ativar botão correspondente
+            event.target.classList.add('active');
+            
+            // Atualizar conteúdo específico da tab
+            switch(tabName) {
+                case 'produtos':
+                    atualizarListaProdutos();
+                    break;
+                case 'custos':
+                    atualizarSelectProdutos('produtoSelecionado');
+                    break;
+                case 'precificacao':
+                    atualizarSelectProdutos('produtoPrecificacao');
+                    break;
+                case 'simulacao':
+                    atualizarSelectProdutos('produtoSimulacao');
+                    break;
+                case 'dashboard':
+                    atualizarDashboard();
+                    break;
+                case 'equilibrio':
+                    atualizarSelectProdutos('produtoEquilibrio');
+                    break;
+            }
+        }
+
+        // Gerenciamento de Produtos
+        document.getElementById('produtoForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const produto = {
+                id: Date.now(),
+                nome: document.getElementById('nomeProduto').value,
+                categoria: document.getElementById('categoriaProduto').value,
+                unidade: document.getElementById('unidadeMedida').value,
+                dataCriacao: new Date().toISOString()
+            };
+            
+            produtos.push(produto);
+            localStorage.setItem('produtos', JSON.stringify(produtos));
+            
+            // Limpar formulário
+            document.getElementById('produtoForm').reset();
+            
+            // Atualizar lista
+            atualizarListaProdutos();
+            
+            alert('Produto cadastrado com sucesso!');
+        });
+
+        function atualizarListaProdutos() {
+            const lista = document.getElementById('listaProdutos');
+            lista.innerHTML = '';
+            
+            if (produtos.length === 0) {
+                lista.innerHTML = '<p class="text-gray-500 text-center py-4">Nenhum produto cadastrado</p>';
+                return;
+            }
+            
+            produtos.forEach(produto => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-3 border border-gray-200 rounded-md';
+                div.innerHTML = `
+                    <div>
+                        <h4 class="font-medium text-gray-800">${produto.nome}</h4>
+                        <p class="text-sm text-gray-600">${produto.categoria} - ${produto.unidade}</p>
+                    </div>
+                    <button onclick="excluirProduto(${produto.id})" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                lista.appendChild(div);
+            });
+        }
+
+        function excluirProduto(id) {
+            if (confirm('Tem certeza que deseja excluir este produto?')) {
+                produtos = produtos.filter(p => p.id !== id);
+                localStorage.setItem('produtos', JSON.stringify(produtos));
+                
+                // Limpar custos e preços relacionados
+                delete custos[id];
+                delete precos[id];
+                localStorage.setItem('custos', JSON.stringify(custos));
+                localStorage.setItem('precos', JSON.stringify(precos));
+                
+                atualizarListaProdutos();
+            }
+        }
+
+        function atualizarSelectProdutos(selectId) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '<option value="">Selecione um produto</option>';
+            
+            produtos.forEach(produto => {
+                const option = document.createElement('option');
+                option.value = produto.id;
+                option.textContent = produto.nome;
+                select.appendChild(option);
+            });
+        }
+
+        // Gerenciamento de Custos
+        function adicionarCustoDirecto() {
+            const container = document.getElementById('custosDirectos');
+            const div = document.createElement('div');
+            div.className = 'flex gap-2';
+            div.innerHTML = `
+                <input type="text" placeholder="Descrição" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-descricao">
+                <input type="number" placeholder="Valor" class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-valor" onchange="calcularCustos()">
+                <button type="button" onclick="removerCusto(this)" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700">
+                    <i class="fas fa-minus"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        function adicionarCustoIndireto() {
+            const container = document.getElementById('custosIndiretos');
+            const div = document.createElement('div');
+            div.className = 'flex gap-2';
+            div.innerHTML = `
+                <input type="text" placeholder="Descrição" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-descricao">
+                <input type="number" placeholder="Valor" class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-valor" onchange="calcularCustos()">
+                <button type="button" onclick="removerCusto(this)" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700">
+                    <i class="fas fa-minus"></i>
+                </button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removerCusto(button) {
+            button.parentElement.remove();
+            calcularCustos();
+        }
+
+        function calcularCustos() {
+            const quantidade = parseFloat(document.getElementById('quantidadeProduzida').value) || 1;
+            
+            // Calcular custos diretos
+            const custosDirectosInputs = document.querySelectorAll('#custosDirectos .custo-valor');
+            let totalCustosDirectos = 0;
+            custosDirectosInputs.forEach(input => {
+                totalCustosDirectos += parseFloat(input.value) || 0;
+            });
+            
+            // Calcular custos indiretos
+            const custosIndiretosInputs = document.querySelectorAll('#custosIndiretos .custo-valor');
+            let totalCustosIndiretos = 0;
+            custosIndiretosInputs.forEach(input => {
+                totalCustosIndiretos += parseFloat(input.value) || 0;
+            });
+            
+            const custoTotal = totalCustosDirectos + totalCustosIndiretos;
+            const custoUnitario = custoTotal / quantidade;
+            
+            // Atualizar display
+            document.getElementById('totalCustosDirectos').textContent = `R$ ${totalCustosDirectos.toFixed(2).replace('.', ',')}`;
+            document.getElementById('totalCustosIndiretos').textContent = `R$ ${totalCustosIndiretos.toFixed(2).replace('.', ',')}`;
+            document.getElementById('custoTotal').textContent = `R$ ${custoTotal.toFixed(2).replace('.', ',')}`;
+            document.getElementById('custoUnitario').textContent = `R$ ${custoUnitario.toFixed(2).replace('.', ',')}`;
+        }
+
+        function carregarCustos() {
+            const produtoId = document.getElementById('produtoSelecionado').value;
+            if (!produtoId) return;
+            
+            const custosProduto = custos[produtoId];
+            if (!custosProduto) return;
+            
+            // Carregar quantidade
+            document.getElementById('quantidadeProduzida').value = custosProduto.quantidade || 1;
+            
+            // Carregar custos diretos
+            const containerDirectos = document.getElementById('custosDirectos');
+            containerDirectos.innerHTML = '';
+            custosProduto.diretos.forEach(custo => {
+                const div = document.createElement('div');
+                div.className = 'flex gap-2';
+                div.innerHTML = `
+                    <input type="text" value="${custo.descricao}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-descricao">
+                    <input type="number" value="${custo.valor}" class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-valor" onchange="calcularCustos()">
+                    <button type="button" onclick="removerCusto(this)" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                `;
+                containerDirectos.appendChild(div);
+            });
+            
+            // Carregar custos indiretos
+            const containerIndiretos = document.getElementById('custosIndiretos');
+            containerIndiretos.innerHTML = '';
+            custosProduto.indiretos.forEach(custo => {
+                const div = document.createElement('div');
+                div.className = 'flex gap-2';
+                div.innerHTML = `
+                    <input type="text" value="${custo.descricao}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-descricao">
+                    <input type="number" value="${custo.valor}" class="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 custo-valor" onchange="calcularCustos()">
+                    <button type="button" onclick="removerCusto(this)" class="bg-red-600 text-white px-3 py-2 rounded-md hover:bg-red-700">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                `;
+                containerIndiretos.appendChild(div);
+            });
+            
+            calcularCustos();
+        }
+
+        function salvarCustos() {
+            const produtoId = document.getElementById('produtoSelecionado').value;
+            if (!produtoId) {
+                alert('Selecione um produto primeiro!');
+                return;
+            }
+            
+            const quantidade = parseFloat(document.getElementById('quantidadeProduzida').value) || 1;
+            
+            // Coletar custos diretos
+            const custosDirectos = [];
+            document.querySelectorAll('#custosDirectos > div').forEach(div => {
+                const descricao = div.querySelector('.custo-descricao').value;
+                const valor = parseFloat(div.querySelector('.custo-valor').value) || 0;
+                if (descricao && valor > 0) {
+                    custosDirectos.push({ descricao, valor });
+                }
+            });
+            
+            // Coletar custos indiretos
+            const custosIndiretos = [];
+            document.querySelectorAll('#custosIndiretos > div').forEach(div => {
+                const descricao = div.querySelector('.custo-descricao').value;
+                const valor = parseFloat(div.querySelector('.custo-valor').value) || 0;
+                if (descricao && valor > 0) {
+                    custosIndiretos.push({ descricao, valor });
+                }
+            });
+            
+            custos[produtoId] = {
+                quantidade,
+                diretos: custosDirectos,
+                indiretos: custosIndiretos,
+                dataAtualizacao: new Date().toISOString()
+            };
+            
+            localStorage.setItem('custos', JSON.stringify(custos));
+            alert('Custos salvos com sucesso!');
+        }
+
+        // Gerenciamento de Precificação
+        function carregarDadosPrecificacao() {
+            const produtoId = document.getElementById('produtoPrecificacao').value;
+            if (!produtoId) return;
+            
+            const custosProduto = custos[produtoId];
+            if (custosProduto) {
+                const custoUnitario = calcularCustoUnitario(produtoId);
+                document.getElementById('custoUnitarioPrecificacao').textContent = `R$ ${custoUnitario.toFixed(2).replace('.', ',')}`;
+            }
+            
+            const precosProduto = precos[produtoId];
+            if (precosProduto) {
+                document.getElementById('margemLucro').value = precosProduto.margem || 30;
+                document.getElementById('impostos').value = precosProduto.impostos || 15;
+                document.getElementById('comissaoVendas').value = precosProduto.comissao || 5;
+                document.getElementById('descontoMaximo').value = precosProduto.desconto || 10;
+            }
+            
+            calcularPreco();
+        }
+
+        function calcularCustoUnitario(produtoId) {
+            const custosProduto = custos[produtoId];
+            if (!custosProduto) return 0;
+            
+            const totalDirectos = custosProduto.diretos.reduce((sum, custo) => sum + custo.valor, 0);
+            const totalIndiretos = custosProduto.indiretos.reduce((sum, custo) => sum + custo.valor, 0);
+            
+            return (totalDirectos + totalIndiretos) / custosProduto.quantidade;
+        }
+
+        function calcularPreco() {
+            const produtoId = document.getElementById('produtoPrecificacao').value;
+            if (!produtoId) return;
+            
+            const custoUnitario = calcularCustoUnitario(produtoId);
+            const margem = parseFloat(document.getElementById('margemLucro').value) || 0;
+            const impostos = parseFloat(document.getElementById('impostos').value) || 0;
+            const comissao = parseFloat(document.getElementById('comissaoVendas').value) || 0;
+            const desconto = parseFloat(document.getElementById('descontoMaximo').value) || 0;
+            
+            const valorMargem = custoUnitario * (margem / 100);
+            const precoBase = custoUnitario + valorMargem;
+            const valorImpostos = precoBase * (impostos / 100);
+            const valorComissao = precoBase * (comissao / 100);
+            const precoSugerido = precoBase + valorImpostos + valorComissao;
+            const precoMinimo = precoSugerido * (1 - desconto / 100);
+            
+            // Atualizar display
+            document.getElementById('valorMargemLucro').textContent = `R$ ${valorMargem.toFixed(2).replace('.', ',')}`;
+            document.getElementById('valorImpostos').textContent = `R$ ${valorImpostos.toFixed(2).replace('.', ',')}`;
+            document.getElementById('valorComissao').textContent = `R$ ${valorComissao.toFixed(2).replace('.', ',')}`;
+            document.getElementById('precoSugerido').textContent = `R$ ${precoSugerido.toFixed(2).replace('.', ',')}`;
+            document.getElementById('precoMinimo').textContent = `R$ ${precoMinimo.toFixed(2).replace('.', ',')}`;
+        }
+
+        function salvarPrecificacao() {
+            const produtoId = document.getElementById('produtoPrecificacao').value;
+            if (!produtoId) {
+                alert('Selecione um produto primeiro!');
+                return;
+            }
+            
+            const margem = parseFloat(document.getElementById('margemLucro').value) || 0;
+            const impostos = parseFloat(document.getElementById('impostos').value) || 0;
+            const comissao = parseFloat(document.getElementById('comissaoVendas').value) || 0;
+            const desconto = parseFloat(document.getElementById('descontoMaximo').value) || 0;
+            
+            const custoUnitario = calcularCustoUnitario(produtoId);
+            const valorMargem = custoUnitario * (margem / 100);
+            const precoBase = custoUnitario + valorMargem;
+            const valorImpostos = precoBase * (impostos / 100);
+            const valorComissao = precoBase * (comissao / 100);
+            const precoSugerido = precoBase + valorImpostos + valorComissao;
+            
+            precos[produtoId] = {
+                margem,
+                impostos,
+                comissao,
+                desconto,
+                custoUnitario,
+                precoSugerido,
+                dataAtualizacao: new Date().toISOString()
+            };
+            
+            localStorage.setItem('precos', JSON.stringify(precos));
+            alert('Precificação salva com sucesso!');
+        }
+
+        // Simulação de Cenários
+        function carregarDadosSimulacao() {
+            const produtoId = document.getElementById('produtoSimulacao').value;
+            if (!produtoId) return;
+            
+            const precosProduto = precos[produtoId];
+            if (precosProduto) {
+                document.getElementById('precoAtualSimulacao').value = precosProduto.precoSugerido.toFixed(2);
+            }
+        }
+
+        function simularCenarios() {
+            const produtoId = document.getElementById('produtoSimulacao').value;
+            const precoAtual = parseFloat(document.getElementById('precoAtualSimulacao').value) || 0;
+            const vendasAtuais = parseFloat(document.getElementById('vendasAtuais').value) || 0;
+            const variacaoPreco = parseFloat(document.getElementById('variacaoPreco').value) || 0;
+            const elasticidade = parseFloat(document.getElementById('elasticidadeDemanda').value) || 1;
+            
+            if (!produtoId || !precoAtual || !vendasAtuais) {
+                alert('Preencha todos os campos obrigatórios!');
+                return;
+            }
+            
+            const custoUnitario = calcularCustoUnitario(produtoId);
+            const novoPreco = precoAtual * (1 + variacaoPreco / 100);
+            const variacaoVendas = -elasticidade * (variacaoPreco / 100);
+            const novasVendas = vendasAtuais * (1 + variacaoVendas);
+            
+            const receitaAtual = precoAtual * vendasAtuais;
+            const custoTotalAtual = custoUnitario * vendasAtuais;
+            const lucroAtual = receitaAtual - custoTotalAtual;
+            
+            const novaReceita = novoPreco * novasVendas;
+            const novoCustoTotal = custoUnitario * novasVendas;
+            const novoLucro = novaReceita - novoCustoTotal;
+            
+            const variacaoLucro = ((novoLucro - lucroAtual) / lucroAtual) * 100;
+            
+            // Atualizar resultados
+            const resultados = document.getElementById('resultadosSimulacao');
+            resultados.innerHTML = `
+                <div class="space-y-3">
+                    <div class="bg-blue-50 p-3 rounded-md">
+                        <h4 class="font-semibold text-blue-800 mb-2">Cenário Atual</h4>
+                        <p>Preço: R$ ${precoAtual.toFixed(2).replace('.', ',')}</p>
+                        <p>Vendas: ${vendasAtuais} unidades</p>
+                        <p>Receita: R$ ${receitaAtual.toFixed(2).replace('.', ',')}</p>
+                        <p>Lucro: R$ ${lucroAtual.toFixed(2).replace('.', ',')}</p>
+                    </div>
+                    <div class="bg-green-50 p-3 rounded-md">
+                        <h4 class="font-semibold text-green-800 mb-2">Cenário Simulado</h4>
+                        <p>Novo Preço: R$ ${novoPreco.toFixed(2).replace('.', ',')}</p>
+                        <p>Novas Vendas: ${Math.round(novasVendas)} unidades</p>
+                        <p>Nova Receita: R$ ${novaReceita.toFixed(2).replace('.', ',')}</p>
+                        <p>Novo Lucro: R$ ${novoLucro.toFixed(2).replace('.', ',')}</p>
+                    </div>
+                    <div class="bg-yellow-50 p-3 rounded-md">
+                        <h4 class="font-semibold text-yellow-800 mb-2">Impacto</h4>
+                        <p>Variação nas Vendas: ${(variacaoVendas * 100).toFixed(1)}%</p>
+                        <p class="${variacaoLucro >= 0 ? 'text-green-600' : 'text-red-600'}">
+                            Variação no Lucro: ${variacaoLucro.toFixed(1)}%
+                        </p>
+                    </div>
+                </div>
+            `;
+            
+            // Atualizar gráfico
+            atualizarGraficoCenarios(precoAtual, novoPreco, vendasAtuais, novasVendas, lucroAtual, novoLucro);
+        }
+
+        function atualizarGraficoCenarios(precoAtual, novoPreco, vendasAtuais, novasVendas, lucroAtual, novoLucro) {
+            const ctx = document.getElementById('cenarioChart').getContext('2d');
+            
+            if (window.cenarioChart) {
+                window.cenarioChart.destroy();
+            }
+            
+            window.cenarioChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Preço', 'Vendas', 'Lucro'],
+                    datasets: [{
+                        label: 'Cenário Atual',
+                        data: [precoAtual, vendasAtuais, lucroAtual],
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Cenário Simulado',
+                        data: [novoPreco, novasVendas, novoLucro],
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Dashboard
+        function atualizarDashboard() {
+            // Atualizar cards
+            document.getElementById('totalProdutos').textContent = produtos.length;
+            
+            if (produtos.length > 0) {
+                // Calcular métricas
+                let totalMargem = 0;
+                let totalPreco = 0;
+                let totalCusto = 0;
+                let produtosComPreco = 0;
+                
+                produtos.forEach(produto => {
+                    const precoProduto = precos[produto.id];
+                    const custoProduto = custos[produto.id];
+                    
+                    if (precoProduto && custoProduto) {
+                        totalMargem += precoProduto.margem;
+                        totalPreco += precoProduto.precoSugerido;
+                        totalCusto += precoProduto.custoUnitario;
+                        produtosComPreco++;
+                    }
+                });
+                
+                if (produtosComPreco > 0) {
+                    document.getElementById('margemMedia').textContent = `${(totalMargem / produtosComPreco).toFixed(1)}%`;
+                    document.getElementById('precoMedio').textContent = `R$ ${(totalPreco / produtosComPreco).toFixed(2).replace('.', ',')}`;
+                    document.getElementById('custoMedio').textContent = `R$ ${(totalCusto / produtosComPreco).toFixed(2).replace('.', ',')}`;
+                }
+            }
+            
+            // Atualizar gráficos
+            atualizarGraficoCustos();
+            atualizarGraficoMargens();
+            atualizarGraficoPrecos();
+        }
+
+        function atualizarGraficoCustos() {
+            const ctx = document.getElementById('custosChart').getContext('2d');
+            
+            if (window.custosChart) {
+                window.custosChart.destroy();
+            }
+            
+            let totalDirectos = 0;
+            let totalIndiretos = 0;
+            
+            Object.values(custos).forEach(custo => {
+                totalDirectos += custo.diretos.reduce((sum, c) => sum + c.valor, 0);
+                totalIndiretos += custo.indiretos.reduce((sum, c) => sum + c.valor, 0);
+            });
+            
+            window.custosChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Custos Diretos', 'Custos Indiretos'],
+                    datasets: [{
+                        data: [totalDirectos, totalIndiretos],
+                        backgroundColor: ['rgba(16, 185, 129, 0.8)', 'rgba(245, 158, 11, 0.8)'],
+                        borderColor: ['rgba(16, 185, 129, 1)', 'rgba(245, 158, 11, 1)'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function atualizarGraficoMargens() {
+            const ctx = document.getElementById('margensChart').getContext('2d');
+            
+            if (window.margensChart) {
+                window.margensChart.destroy();
+            }
+            
+            const labels = [];
+            const margens = [];
+            
+            produtos.forEach(produto => {
+                const precoProduto = precos[produto.id];
+                if (precoProduto) {
+                    labels.push(produto.nome);
+                    margens.push(precoProduto.margem);
+                }
+            });
+            
+            window.margensChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Margem de Lucro (%)',
+                        data: margens,
+                        backgroundColor: 'rgba(139, 69, 19, 0.8)',
+                        borderColor: 'rgba(139, 69, 19, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function atualizarGraficoPrecos() {
+            const ctx = document.getElementById('precosChart').getContext('2d');
+            
+            if (window.precosChart) {
+                window.precosChart.destroy();
+            }
+            
+            const labels = [];
+            const custos = [];
+            const precosSugeridos = [];
+            
+            produtos.forEach(produto => {
+                const precoProduto = precos[produto.id];
+                if (precoProduto) {
+                    labels.push(produto.nome);
+                    custos.push(precoProduto.custoUnitario);
+                    precosSugeridos.push(precoProduto.precoSugerido);
+                }
+            });
+            
+            window.precosChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Custo Unitário',
+                        data: custos,
+                        backgroundColor: 'rgba(239, 68, 68, 0.8)',
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Preço Sugerido',
+                        data: precosSugeridos,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Ponto de Equilíbrio
+        function carregarDadosEquilibrio() {
+            const produtoId = document.getElementById('produtoEquilibrio').value;
+            if (!produtoId) return;
+            
+            const precoProduto = precos[produtoId];
+            if (precoProduto) {
+                document.getElementById('precoVendaEquilibrio').value = precoProduto.precoSugerido.toFixed(2);
+                document.getElementById('custoVariavelEquilibrio').value = precoProduto.custoUnitario.toFixed(2);
+            }
+            
+            calcularPontoEquilibrio();
+        }
+
+        function calcularPontoEquilibrio() {
+            const custosFixos = parseFloat(document.getElementById('custosFixos').value) || 0;
+            const precoVenda = parseFloat(document.getElementById('precoVendaEquilibrio').value) || 0;
+            const custoVariavel = parseFloat(document.getElementById('custoVariavelEquilibrio').value) || 0;
+            
+            if (precoVenda <= custoVariavel) {
+                alert('O preço de venda deve ser maior que o custo variável!');
+                return;
+            }
+            
+            const margemContribuicao = precoVenda - custoVariavel;
+            const percentualMargem = (margemContribuicao / precoVenda) * 100;
+            const pontoEquilibrioUnidades = Math.ceil(custosFixos / margemContribuicao);
+            const pontoEquilibrioReais = pontoEquilibrioUnidades * precoVenda;
+            
+            // Atualizar display
+            document.getElementById('margemContribuicao').textContent = `R$ ${margemContribuicao.toFixed(2).replace('.', ',')}`;
+            document.getElementById('percentualMargem').textContent = `${percentualMargem.toFixed(1)}%`;
+            document.getElementById('pontoEquilibrioUnidades').textContent = pontoEquilibrioUnidades;
+            document.getElementById('pontoEquilibrioReais').textContent = `R$ ${pontoEquilibrioReais.toFixed(2).replace('.', ',')}`;
+            
+            // Atualizar gráfico
+            atualizarGraficoEquilibrio(custosFixos, custoVariavel, precoVenda, pontoEquilibrioUnidades);
+        }
+
+        function atualizarGraficoEquilibrio(custosFixos, custoVariavel, precoVenda, pontoEquilibrio) {
+            const ctx = document.getElementById('equilibrioChart').getContext('2d');
+            
+            if (window.equilibrioChart) {
+                window.equilibrioChart.destroy();
+            }
+            
+            const maxUnidades = pontoEquilibrio * 2;
+            const unidades = [];
+            const custoTotal = [];
+            const receitaTotal = [];
+            
+            for (let i = 0; i <= maxUnidades; i += Math.ceil(maxUnidades / 20)) {
+                unidades.push(i);
+                custoTotal.push(custosFixos + (custoVariavel * i));
+                receitaTotal.push(precoVenda * i);
+            }
+            
+            window.equilibrioChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: unidades,
+                    datasets: [{
+                        label: 'Custo Total',
+                        data: custoTotal,
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 2,
+                        fill: false
+                    }, {
+                        label: 'Receita Total',
+                        data: receitaTotal,
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Unidades Vendidas'
+                            }
+                        },
+                        y: {
+                            display: true,
+                            title: {
+                                display: true,
+                                text: 'Valor (R$)'
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carregar dados salvos
+            atualizarListaProdutos();
+            atualizarSelectProdutos('produtoSelecionado');
+            
+            // Adicionar primeiros campos de custo
+            adicionarCustoDirecto();
+            adicionarCustoIndireto();
+            
+            // Mostrar primeira tab
+            showTab('produtos');
+        });
+    </script>
+</body>
+</html>

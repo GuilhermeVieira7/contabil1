@@ -14,9 +14,9 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 import google.generativeai as genai  
 
 # Configurações do banco de dados
-POSTGRES_USER = os.getenv("POSTGRES_USER", "mercadinho")
+POSTGRES_USER = os.getenv("POSTGRES_USER", "gestao1")
 POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "123")
-POSTGRES_DB = os.getenv("POSTGRES_DB", "gestao")
+POSTGRES_DB = os.getenv("POSTGRES_DB", "contabil1")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "192.168.1.124")
 POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 DB_URI = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_DB}"
@@ -211,6 +211,10 @@ def create_app():
     @login_required # DECORATOR ADICIONADO
     def about():
         return render_template("about.html")
+    @app.route("/centrocusto")
+    @login_required
+    def centrocusto():
+        return render_template("centrocusto.html")
     
     @app.route('/controledevalidade')
     @login_required # DECORATOR ADICIONADO
